@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Kenya Under Siege — eCitizen Breach 2023</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   THEME: Kenya Cyber Dark
+   Inspired by Kenyan flag palette + hacker aesthetic
+   Green (#18c95a), Red (#cc2200), Black (#060c08)
+   ============================================= */
+:root {
+  --bg:          #060c08;
+  --bg2:         #0d1610;
+  --bg3:         #111f14;
+  --bg4:         #172319;
+  --green:       #18c95a;
+  --green2:      #0da847;
+  --green-dim:   #0a5e29;
+  --green-glow:  rgba(24,201,90,0.15);
+  --red:         #cc2200;
+  --red-bright:  #e63000;
+  --red-glow:    rgba(204,34,0,0.2);
+  --white:       #eef2ee;
+  --off-white:   #c8d4cc;
+  --grey:        #6a7d6e;
+  --grey2:       #3a4e3e;
+  --border:      rgba(24,201,90,0.18);
+  --border2:     rgba(24,201,90,0.08);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'IBM Plex Sans', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+
+  --title-size:   clamp(2rem, 5.5vw, 4.6rem);
+  --h2-size:      clamp(1.3rem, 3vw, 2.4rem);
+  --h3-size:      clamp(1rem, 1.8vw, 1.45rem);
+  --body-size:    clamp(0.72rem, 1.25vw, 1rem);
+  --small-size:   clamp(0.6rem, 0.85vw, 0.78rem);
+  --mono-size:    clamp(0.62rem, 1vw, 0.82rem);
+
+  --slide-padding: clamp(1.4rem, 4vw, 4rem);
+  --content-gap:   clamp(0.7rem, 1.8vw, 1.8rem);
+  --el-gap:        clamp(0.3rem, 0.8vw, 0.65rem);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 0.6s;
+}
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow-x:hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--white); font-family: var(--font-body); }
+
+/* ── VIEWPORT BASE (mandatory) ── */
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column; position: relative;
+}
+.slide-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+img { max-width:100%; max-height: min(50vh,400px); object-fit: contain; }
+
+/* ── BREAKPOINTS ── */
+@media (max-height:700px) {
+  :root {
+    --slide-padding: clamp(0.8rem, 2.5vw, 2rem);
+    --content-gap:   clamp(0.4rem, 1.2vw, 1rem);
+    --title-size:    clamp(1.4rem, 4vw, 2.8rem);
+    --h2-size:       clamp(1.1rem, 2.5vw, 1.8rem);
+    --h3-size:       clamp(0.9rem, 1.6vw, 1.2rem);
+    --body-size:     clamp(0.66rem, 1.1vw, 0.88rem);
+  }
+}
+@media (max-height:600px) {
+  :root {
+    --slide-padding: clamp(0.5rem, 2vw, 1.4rem);
+    --content-gap:   clamp(0.3rem, 0.8vw, 0.6rem);
+    --title-size:    clamp(1.2rem, 3.5vw, 2rem);
+    --body-size:     clamp(0.6rem, 0.95vw, 0.78rem);
+  }
+  .nav-dots, .keyboard-hint { display:none; }
+}
+@media (max-height:500px) {
+  :root {
+    --slide-padding: clamp(0.4rem, 1.5vw, 0.9rem);
+    --title-size:    clamp(1rem, 3vw, 1.5rem);
+  }
+}
+@media (max-width:600px) {
+  .two-col { grid-template-columns: 1fr !important; }
+  .three-col { grid-template-columns: 1fr 1fr !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after {
+    animation-duration:0.01ms !important;
+    transition-duration:0.2s !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ── ANIMATIONS ── */
+.reveal {
+  opacity:0; transform:translateY(24px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal { opacity:1; transform:translateY(0); }
+.reveal:nth-child(1) { transition-delay:0.05s; }
+.reveal:nth-child(2) { transition-delay:0.15s; }
+.reveal:nth-child(3) { transition-delay:0.25s; }
+.reveal:nth-child(4) { transition-delay:0.35s; }
+.reveal:nth-child(5) { transition-delay:0.45s; }
+.reveal:nth-child(6) { transition-delay:0.55s; }
+.reveal-left {
+  opacity:0; transform:translateX(-24px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal-left { opacity:1; transform:translateX(0); }
+.reveal-right {
+  opacity:0; transform:translateX(24px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.slide.visible .reveal-right { opacity:1; transform:translateX(0); }
+.reveal-left:nth-child(1),
+.reveal-right:nth-child(1) { transition-delay:0.1s; }
+.reveal-left:nth-child(2),
+.reveal-right:nth-child(2) { transition-delay:0.2s; }
+.reveal-left:nth-child(3),
+.reveal-right:nth-child(3) { transition-delay:0.3s; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  position:fixed; top:0; left:0; height:3px;
+  background: linear-gradient(90deg, var(--red-bright), var(--green));
+  width:0%; z-index:1000; transition: width 0.3s ease;
+}
+
+/* ── NAV DOTS ── */
+.nav-dots {
+  position:fixed; right:clamp(0.5rem,1.2vw,1rem); top:50%;
+  transform:translateY(-50%);
+  display:flex; flex-direction:column;
+  gap:clamp(4px,0.8vh,8px); z-index:999;
+}
+.nav-dot {
+  width:clamp(5px,0.6vw,7px); height:clamp(5px,0.6vw,7px);
+  border-radius:50%; background:var(--grey2);
+  cursor:pointer; transition:background 0.3s, transform 0.3s; border:none;
+}
+.nav-dot.active { background:var(--green); transform:scale(1.5); }
+
+/* ── SHARED COMPONENTS ── */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--green);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: clamp(0.35rem, 0.9vh, 0.8rem);
+}
+.label.red { color: var(--red-bright); }
+
+.divider {
+  width: clamp(28px, 4vw, 52px); height: 3px;
+  background: var(--green); margin: clamp(0.4rem,1vh,0.85rem) 0;
+  flex-shrink: 0;
+}
+.divider.red { background: var(--red-bright); }
+
+/* grid backgrounds */
+.bg-grid {
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(24,201,90,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24,201,90,0.04) 1px, transparent 1px);
+  background-size: clamp(28px,4vw,52px) clamp(28px,4vw,52px);
+}
+.bg-scan {
+  position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(24,201,90,0.015) 2px, rgba(24,201,90,0.015) 4px
+  );
+}
+
+/* glow blob decorations */
+.blob {
+  position:absolute; border-radius:50%; filter:blur(80px);
+  pointer-events:none; opacity:0.35;
+}
+
+/* card */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(0.65rem,1.4vw,1.3rem);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content:'';
+  position:absolute; inset:-1px; border-radius:8px;
+  background:linear-gradient(135deg, rgba(24,201,90,0.12), transparent 55%);
+  z-index:0; pointer-events:none;
+}
+.card > * { position:relative; z-index:1; }
+
+/* concept tag */
+.concept-tag {
+  display:inline-flex; align-items:center; gap:0.4em;
+  font-family: var(--font-mono); font-size: var(--small-size);
+  background: rgba(24,201,90,0.1); color: var(--green);
+  border: 1px solid rgba(24,201,90,0.3);
+  padding: 0.22em 0.65em; border-radius: 3px;
+  letter-spacing:0.06em;
+}
+.concept-tag.red {
+  background: rgba(204,34,0,0.12); color:#ff6644;
+  border-color: rgba(204,34,0,0.3);
+}
+.concept-tag.amber {
+  background: rgba(255,180,0,0.1); color:#ffa500;
+  border-color: rgba(255,180,0,0.3);
+}
+
+/* cite */
+.cite {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--grey);
+  font-style:normal;
+  margin-top: auto;
+  padding-top: clamp(0.3rem,0.8vh,0.6rem);
+  border-top: 1px solid var(--border2);
+}
+
+/* slide number */
+.slide-num {
+  position:absolute; top:clamp(0.8rem,2vh,1.5rem); right:clamp(0.8rem,2vw,1.8rem);
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); opacity:0.5;
+  z-index:10;
+}
+
+/* ── ══════════════════════════════════════════
+   SLIDE 1 — TITLE
+   ═══════════════════════════════════════════ */
+#s1 { background: var(--bg); }
+#s1 .bg-grid { opacity:0.7; }
+#s1 .blob1 { width:40vw; height:40vw; top:-10%; left:-10%; background:var(--green-dim); }
+#s1 .blob2 { width:30vw; height:30vw; bottom:0; right:5%; background:rgba(180,20,0,0.3); }
+
+#s1 .content {
+  padding: var(--slide-padding);
+  display:flex; flex-direction:column;
+  justify-content:center; height:100%;
+  position:relative; z-index:2;
+}
+
+#s1 .kf-flag {
+  display:flex; gap:0; height:clamp(4px,0.6vh,7px);
+  width:clamp(40px,8vw,90px);
+  margin-bottom:clamp(0.8rem,2vh,1.5rem);
+  border-radius:2px; overflow:hidden;
+  flex-shrink:0;
+}
+#s1 .kf-flag .k1 { flex:1; background:#006600; }
+#s1 .kf-flag .k2 { flex:1; background:#cc0000; }
+#s1 .kf-flag .k3 { flex:1; background:#000; }
+#s1 .kf-flag .k4 { flex:1; background:#cc0000; }
+#s1 .kf-flag .k5 { flex:1; background:#006600; }
+
+#s1 h1 {
+  font-family: var(--font-display);
+  font-size: var(--title-size);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+  color: var(--white);
+}
+#s1 h1 span { color: var(--green); }
+#s1 h1 em { color: var(--red-bright); font-style:normal; }
+
+#s1 .subtitle {
+  font-family: var(--font-body);
+  font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+  color: var(--off-white);
+  font-weight: 300;
+  margin-top: clamp(0.6rem,1.5vh,1.2rem);
+  max-width: 55ch;
+  line-height:1.5;
+}
+#s1 .meta-row {
+  display:flex; gap:clamp(0.8rem,2vw,2rem); flex-wrap:wrap;
+  margin-top: clamp(0.9rem,2vh,1.8rem);
+  align-items:center;
+}
+#s1 .meta-item {
+  display:flex; flex-direction:column; gap:0.2em;
+}
+#s1 .meta-item .mk {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); text-transform:uppercase; letter-spacing:0.15em;
+}
+#s1 .meta-item .mv {
+  font-family:var(--font-mono); font-size:var(--body-size);
+  color:var(--green); font-weight:700;
+}
+#s1 .meta-item .mv.red { color:var(--red-bright); }
+
+#s1 .course-badge {
+  margin-top: clamp(0.6rem,1.5vh,1.2rem);
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); opacity:0.7;
+  letter-spacing:0.1em;
+}
+
+/* ── SLIDE 2 — AGENDA ── */
+#s2 { background: var(--bg); }
+#s2 .bg-grid { opacity:0.5; }
+
+#s2 .inner {
+  padding: var(--slide-padding);
+  display:flex; flex-direction:column;
+  justify-content:center; height:100%;
+  position:relative; z-index:2;
+}
+#s2 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.5vh,1.2rem);
+}
+.agenda-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(0.4rem,1vw,0.8rem);
+}
+.agenda-item {
+  display:flex; align-items:flex-start; gap:0.65em;
+  padding:clamp(0.4rem,1vh,0.75rem) clamp(0.5rem,1.2vw,0.9rem);
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:6px;
+}
+.agenda-item .ai-num {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); font-weight:700;
+  flex-shrink:0; padding-top:0.1em;
+}
+.agenda-item .ai-text {
+  font-size:var(--body-size); font-weight:400; color:var(--off-white);
+  line-height:1.4;
+}
+.agenda-item .ai-text strong { color:var(--white); font-weight:600; display:block; }
+.agenda-item .ai-text .sub { color:var(--grey); font-size:0.87em; }
+
+/* ── SLIDE 3 — WHAT IS eCITIZEN ── */
+#s3 { background:var(--bg); }
+#s3 .bg-grid { opacity:0.45; }
+#s3 .blob1 { width:45vw; height:45vw; top:-5%; right:-10%; background:rgba(0,100,30,0.15); }
+
+#s3 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+.ecitizen-hero {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(1rem,2.5vw,2.5rem);
+  align-items:center;
+}
+#s3 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  line-height:1.1; margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s3 h2 span { color:var(--green); }
+#s3 p {
+  font-size:var(--body-size); color:var(--off-white);
+  line-height:1.55; font-weight:300;
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+
+.ecitizen-portal {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.portal-bar {
+  background:var(--bg3);
+  padding:clamp(0.3rem,0.8vh,0.6rem) clamp(0.6rem,1.2vw,1rem);
+  display:flex; align-items:center; gap:0.5rem;
+  border-bottom:1px solid var(--border2);
+}
+.portal-dots { display:flex; gap:0.35rem; }
+.portal-dots span {
+  width:clamp(5px,0.7vw,8px); height:clamp(5px,0.7vw,8px);
+  border-radius:50%;
+}
+.portal-dots span:nth-child(1) { background:#ff5f57; }
+.portal-dots span:nth-child(2) { background:#febc2e; }
+.portal-dots span:nth-child(3) { background:#28c840; }
+.portal-url {
+  flex:1; background:var(--bg4);
+  border-radius:4px;
+  padding:0.2em 0.7em;
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey);
+  overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+}
+.portal-body {
+  padding:clamp(0.6rem,1.2vw,1rem);
+}
+.portal-header {
+  background: linear-gradient(135deg, #006600, #004400);
+  border-radius:6px; padding:clamp(0.4rem,0.9vh,0.7rem) clamp(0.5rem,1vw,0.8rem);
+  margin-bottom:clamp(0.4rem,0.9vh,0.7rem);
+  display:flex; align-items:center; gap:0.5em;
+}
+.portal-header .ph-flag {
+  width:clamp(14px,2vw,22px); height:auto;
+  display:flex; flex-direction:column; gap:1px; flex-shrink:0;
+}
+.portal-header .ph-flag div { height:3px; }
+.portal-header .ph-flag .pf1,.portal-header .ph-flag .pf5 { background:#006600; }
+.portal-header .ph-flag .pf2,.portal-header .ph-flag .pf4 { background:#cc0000; }
+.portal-header .ph-flag .pf3 { background:#000; }
+.portal-header h3 {
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(0.6rem,1.1vw,0.9rem); color:#fff;
+}
+.portal-header p {
+  font-size:clamp(0.48rem,0.7vw,0.6rem); color:rgba(255,255,255,0.7);
+  margin:0 !important;
+}
+.portal-services {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(0.25rem,0.6vw,0.5rem);
+}
+.ps-item {
+  background:var(--bg4); border-radius:5px;
+  padding:clamp(0.25rem,0.6vh,0.45rem) clamp(0.3rem,0.7vw,0.5rem);
+  display:flex; align-items:center; gap:0.4em;
+  border:1px solid var(--border2);
+}
+.ps-item .ps-icon {
+  font-size:clamp(0.7rem,1.2vw,1rem); flex-shrink:0;
+}
+.ps-item .ps-label {
+  font-size:clamp(0.48rem,0.75vw,0.62rem);
+  color:var(--off-white); line-height:1.2;
+  font-family:var(--font-body); font-weight:400;
+}
+
+/* ── SLIDE 4 — eCITIZEN BY NUMBERS ── */
+#s4 { background:var(--bg); }
+#s4 .bg-grid { opacity:0.4; }
+
+#s4 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s4 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.5vh,1.2rem);
+}
+#s4 h2 span { color:var(--green); }
+
+.stat-row {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:clamp(0.5rem,1.2vw,1rem);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+.stat-box {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:clamp(0.6rem,1.3vh,1rem) clamp(0.6rem,1.3vw,1rem);
+  display:flex; flex-direction:column; gap:0.25em; overflow:hidden; position:relative;
+}
+.stat-box::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--green); opacity:0.5;
+}
+.stat-box.red::after { background:var(--red-bright); }
+.stat-val {
+  font-family:var(--font-display); font-weight:800;
+  font-size:clamp(1.4rem,3.5vw,2.8rem); color:var(--green); line-height:1;
+}
+.stat-box.red .stat-val { color:var(--red-bright); }
+.stat-label {
+  font-size:var(--small-size); color:var(--off-white); font-weight:400; line-height:1.4;
+}
+.stat-sub { font-size:var(--small-size); color:var(--grey); }
+
+.service-pills {
+  display:flex; flex-wrap:wrap; gap:clamp(0.3rem,0.7vw,0.55rem);
+}
+.s-pill {
+  font-size:var(--small-size);
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:20px; padding:0.25em 0.8em;
+  color:var(--off-white); font-family:var(--font-body);
+}
+.s-pill.hi {
+  background:rgba(24,201,90,0.1); border-color:rgba(24,201,90,0.3);
+  color:var(--green);
+}
+
+/* ── SLIDE 5 — GEOPOLITICAL TRIGGER ── */
+#s5 { background:var(--bg); }
+#s5 .bg-grid { opacity:0.4; }
+#s5 .blob1 { width:50vw; height:35vw; top:10%; right:-15%; background:rgba(180,20,0,0.12); }
+
+#s5 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s5 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s5 h2 em { color:var(--red-bright); font-style:normal; }
+
+.timeline {
+  display:flex; flex-direction:column;
+  gap:clamp(0.4rem,1vh,0.8rem);
+  position:relative;
+}
+.timeline::before {
+  content:''; position:absolute; left:calc(clamp(0.9rem,1.8vw,1.5rem) - 1px);
+  top:0; bottom:0; width:2px;
+  background:linear-gradient(to bottom, var(--red-bright), var(--green-dim));
+  opacity:0.5;
+}
+.tl-item {
+  display:flex; gap:clamp(0.7rem,1.5vw,1.3rem); align-items:flex-start;
+}
+.tl-dot {
+  width:clamp(10px,1.8vw,16px); height:clamp(10px,1.8vw,16px);
+  border-radius:50%; border:2px solid var(--green);
+  background:var(--bg); flex-shrink:0;
+  margin-top:0.2em;
+  position:relative; z-index:1;
+}
+.tl-dot.red { border-color:var(--red-bright); }
+.tl-content {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:6px; padding:clamp(0.4rem,0.9vh,0.7rem) clamp(0.5rem,1vw,0.9rem);
+  flex:1;
+}
+.tl-date {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); margin-bottom:0.2em;
+}
+.tl-date.red { color:var(--red-bright); }
+.tl-text { font-size:var(--body-size); color:var(--off-white); line-height:1.45; }
+.tl-text strong { color:var(--white); }
+
+/* ── SLIDE 6 — THE ATTACK ── */
+#s6 { background:var(--bg); }
+#s6 .bg-grid { opacity:0.45; }
+#s6 .blob1 { width:55vw; height:40vw; top:-5%; left:-15%; background:rgba(180,20,0,0.18); }
+
+#s6 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s6 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s6 h2 em { color:var(--red-bright); font-style:normal; }
+
+.attack-layout { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.8rem,2vw,1.8rem); }
+
+.attack-left { display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem); }
+
+.attack-fact {
+  background:var(--bg2); border-left:3px solid var(--red-bright);
+  padding:clamp(0.35rem,0.8vh,0.65rem) clamp(0.5rem,1vw,0.9rem);
+  border-radius:0 5px 5px 0;
+}
+.attack-fact .af-label {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--red-bright); margin-bottom:0.15em; text-transform:uppercase;
+  letter-spacing:0.1em;
+}
+.attack-fact .af-val {
+  font-size:var(--body-size); color:var(--white); font-weight:500; line-height:1.4;
+}
+.attack-fact .af-sub { font-size:var(--small-size); color:var(--grey); margin-top:0.1em; }
+
+.terminal-box {
+  background:#0a0f0b; border:1px solid rgba(24,201,90,0.3);
+  border-radius:8px; overflow:hidden;
+}
+.terminal-title-bar {
+  background:var(--bg3); padding:0.4em 0.8em;
+  display:flex; align-items:center; gap:0.5em;
+  border-bottom:1px solid rgba(24,201,90,0.2);
+}
+.terminal-title-bar .dots { display:flex; gap:0.3rem; }
+.terminal-title-bar .dots span { width:7px; height:7px; border-radius:50%; }
+.terminal-title-bar .dots .r { background:#ff5f57; }
+.terminal-title-bar .dots .y { background:#febc2e; }
+.terminal-title-bar .dots .g { background:#28c840; }
+.terminal-title-bar .t-label {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); margin-left:0.3em;
+}
+.terminal-body {
+  padding:clamp(0.5rem,1.2vw,1rem);
+  font-family:var(--font-mono); font-size:var(--mono-size);
+  line-height:1.7;
+}
+.t-line { display:block; }
+.t-prompt { color:var(--green); }
+.t-cmd { color:var(--white); }
+.t-output { color:#aaa; }
+.t-warn { color:var(--red-bright); }
+.t-hi { color:#febc2e; }
+.t-cursor {
+  display:inline-block; width:0.5em; height:1em;
+  background:var(--green); vertical-align:text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* ── SLIDE 7 — WHO IS ANONYMOUS SUDAN ── */
+#s7 { background:var(--bg); }
+#s7 .bg-grid { opacity:0.4; }
+
+#s7 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s7 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s7 h2 em { color:var(--red-bright); font-style:normal; }
+
+.anon-layout { display:grid; grid-template-columns:1.1fr 0.9fr; gap:clamp(0.8rem,2vw,2rem); align-items:start; }
+.anon-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:clamp(0.6rem,1.3vw,1.2rem);
+}
+.anon-card h4 {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.15em;
+  margin-bottom:clamp(0.4rem,0.9vh,0.7rem);
+}
+.anon-list { list-style:none; display:flex; flex-direction:column; gap:0.35em; }
+.anon-list li {
+  font-size:var(--body-size); color:var(--off-white);
+  padding-left:1.2em; position:relative; line-height:1.4;
+}
+.anon-list li::before {
+  content:'▶'; position:absolute; left:0;
+  color:var(--green); font-size:0.7em; top:0.2em;
+}
+.anon-list li strong { color:var(--white); }
+.anon-list li.red::before { color:var(--red-bright); }
+
+.suspicion-box {
+  background:rgba(204,34,0,0.08); border:1px solid rgba(204,34,0,0.25);
+  border-radius:8px; padding:clamp(0.6rem,1.3vw,1.2rem);
+  display:flex; flex-direction:column; gap:clamp(0.4rem,0.8vh,0.6rem);
+}
+.suspicion-box h4 {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--red-bright); text-transform:uppercase; letter-spacing:0.15em;
+}
+.sus-item {
+  display:flex; gap:0.5em; align-items:flex-start;
+}
+.sus-icon { font-size:var(--body-size); flex-shrink:0; margin-top:0.05em; }
+.sus-text { font-size:var(--small-size); color:var(--off-white); line-height:1.4; }
+.sus-text strong { color:var(--white); }
+
+/* ── SLIDE 8 — DDoS EXPLAINED + CONCEPT 1 ── */
+#s8 { background:var(--bg); }
+#s8 .bg-grid { opacity:0.45; }
+
+#s8 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s8 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s8 h2 em { color:var(--green); font-style:normal; }
+
+.ddos-layout { display:grid; grid-template-columns:1.1fr 0.9fr; gap:clamp(0.8rem,2vw,1.8rem); }
+
+.attack-diagram {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:clamp(0.5rem,1.2vw,1rem);
+}
+.ad-title {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.15em;
+  margin-bottom:clamp(0.4rem,0.9vh,0.7rem);
+}
+
+/* SVG-style diagram with CSS */
+.flow-diagram {
+  display:flex; flex-direction:column; gap:0.25em; align-items:stretch;
+}
+.flow-row {
+  display:flex; gap:clamp(0.3rem,0.7vw,0.5rem);
+  align-items:center; justify-content:center;
+}
+.flow-node {
+  background:var(--bg4); border:1px solid var(--border);
+  border-radius:5px;
+  padding:0.2em 0.5em;
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--off-white); text-align:center;
+  flex:1;
+}
+.flow-node.red { border-color:rgba(204,34,0,0.4); background:rgba(204,34,0,0.08); color:#ff7755; }
+.flow-node.target { border-color:rgba(24,201,90,0.5); color:var(--green); background:rgba(24,201,90,0.08); }
+.flow-arrow {
+  font-size:var(--small-size); color:var(--red-bright); flex-shrink:0;
+}
+.flow-arrow.down { text-align:center; color:var(--red-bright); font-size:var(--small-size); padding:0.1em 0; }
+
+.concept-block {
+  background: linear-gradient(135deg, rgba(24,201,90,0.07), rgba(24,201,90,0.02));
+  border:1px solid rgba(24,201,90,0.2);
+  border-radius:8px; padding:clamp(0.6rem,1.3vw,1.1rem);
+  display:flex; flex-direction:column; gap:clamp(0.35rem,0.8vh,0.65rem);
+}
+.cb-header { display:flex; align-items:center; gap:0.5em; }
+.cb-num {
+  font-family:var(--font-mono); font-size:clamp(1.3rem,2.8vw,2.2rem);
+  font-weight:700; color:var(--green); opacity:0.3; line-height:1;
+}
+.cb-title-group { display:flex; flex-direction:column; gap:0.1em; }
+.cb-concept {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.12em;
+}
+.cb-name {
+  font-family:var(--font-display); font-weight:700;
+  font-size:var(--h3-size); color:var(--white); line-height:1.15;
+}
+.cb-definition {
+  font-size:var(--body-size); color:var(--off-white); line-height:1.5; font-weight:300;
+}
+.cb-quote {
+  background:var(--bg3); border-left:2px solid var(--green);
+  padding:0.4em 0.7em;
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--off-white); line-height:1.5;
+  border-radius:0 4px 4px 0;
+}
+.cb-quote em { color:var(--green); font-style:normal; }
+.cb-application {
+  font-size:var(--small-size); color:var(--green);
+  background:rgba(24,201,90,0.06); border-radius:5px;
+  padding:0.35em 0.6em; line-height:1.4;
+}
+.cb-application strong { color:var(--white); }
+
+/* ── SLIDE 9 — PDoS vs DDoS (CONCEPT 2) ── */
+#s9 { background:var(--bg); }
+#s9 .bg-grid { opacity:0.4; }
+
+#s9 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s9 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+
+.comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.6rem,1.5vw,1.2rem); }
+.comp-col { display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem); }
+.comp-header {
+  padding:clamp(0.5rem,1vh,0.8rem) clamp(0.6rem,1.2vw,1rem);
+  border-radius:7px 7px 0 0; text-align:center;
+}
+.comp-header.teal { background:rgba(24,201,90,0.12); border:1px solid rgba(24,201,90,0.2); }
+.comp-header.danger { background:rgba(204,34,0,0.12); border:1px solid rgba(204,34,0,0.2); }
+.comp-header h3 {
+  font-family:var(--font-display); font-weight:700;
+  font-size:var(--h3-size); color:var(--white);
+}
+.comp-header .ch-sub {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); margin-top:0.2em;
+}
+.comp-header.teal h3 { color:var(--green); }
+.comp-header.danger h3 { color:var(--red-bright); }
+
+.comp-body {
+  flex:1; background:var(--bg2); border:1px solid var(--border2);
+  border-radius:0 0 7px 7px;
+  padding:clamp(0.5rem,1.1vw,0.9rem);
+  display:flex; flex-direction:column; gap:0.35em;
+}
+.comp-row {
+  display:flex; gap:0.5em; align-items:flex-start;
+}
+.comp-icon { flex-shrink:0; font-size:var(--body-size); }
+.comp-text { font-size:var(--small-size); color:var(--off-white); line-height:1.4; }
+.comp-text strong { color:var(--white); display:block; }
+
+.kenya-verdict {
+  grid-column:1/-1;
+  background:rgba(24,201,90,0.06); border:1px solid rgba(24,201,90,0.2);
+  border-radius:7px; padding:clamp(0.4rem,1vh,0.7rem) clamp(0.6rem,1.3vw,1.1rem);
+  display:flex; align-items:center; gap:0.7em;
+}
+.kv-badge {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  background:rgba(24,201,90,0.15); color:var(--green);
+  padding:0.2em 0.6em; border-radius:3px;
+  flex-shrink:0; white-space:nowrap;
+}
+.kv-text { font-size:var(--body-size); color:var(--off-white); line-height:1.4; }
+.kv-text strong { color:var(--white); }
+
+/* ── SLIDE 10 — WHY EASY / CONTROLS GAP (CONCEPT 5) ── */
+#s10 { background:var(--bg); }
+#s10 .bg-grid { opacity:0.4; }
+#s10 .blob1 { width:40vw; height:40vw; bottom:-10%; right:-5%; background:rgba(180,20,0,0.12); }
+
+#s10 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s10 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s10 h2 em { color:var(--red-bright); font-style:normal; }
+
+.vuln-layout { display:grid; grid-template-columns:0.95fr 1.05fr; gap:clamp(0.8rem,2vw,1.8rem); }
+.vuln-list { display:flex; flex-direction:column; gap:clamp(0.35rem,0.8vh,0.65rem); }
+.vuln-item {
+  display:flex; gap:0.6em; align-items:flex-start;
+  background:var(--bg2); border-left:3px solid var(--red-bright);
+  padding:clamp(0.35rem,0.8vh,0.6rem) clamp(0.5rem,1vw,0.8rem);
+  border-radius:0 6px 6px 0;
+}
+.vi-icon { font-size:var(--body-size); flex-shrink:0; margin-top:0.05em; }
+.vi-content { flex:1; }
+.vi-title { font-size:var(--body-size); font-weight:600; color:var(--white); margin-bottom:0.15em; }
+.vi-desc { font-size:var(--small-size); color:var(--off-white); line-height:1.4; }
+
+/* ── SLIDE 11 — DOMINO EFFECT ── */
+#s11 { background:var(--bg); }
+#s11 .bg-grid { opacity:0.4; }
+
+#s11 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s11 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s11 h2 em { color:var(--red-bright); font-style:normal; }
+
+.domino-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:clamp(0.4rem,1vw,0.8rem);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+.domino-card {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:8px; padding:clamp(0.5rem,1.1vw,0.9rem);
+  display:flex; flex-direction:column; gap:0.3em;
+  border-top:3px solid var(--red-bright);
+  transition: border-color 0.3s;
+}
+.domino-card.green-top { border-top-color:var(--green); }
+.dc-icon { font-size:clamp(1rem,2.2vw,1.8rem); }
+.dc-name {
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(0.75rem,1.3vw,1rem); color:var(--white);
+}
+.dc-impact { font-size:var(--small-size); color:var(--off-white); line-height:1.4; }
+.dc-badge {
+  margin-top:auto;
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--red-bright); background:rgba(204,34,0,0.1);
+  border:1px solid rgba(204,34,0,0.2); border-radius:3px;
+  padding:0.15em 0.5em; align-self:flex-start;
+}
+.domino-card.green-top .dc-badge { color:var(--green); background:rgba(24,201,90,0.1); border-color:rgba(24,201,90,0.2); }
+
+.impact-note {
+  background:rgba(204,34,0,0.07); border:1px solid rgba(204,34,0,0.2);
+  border-radius:6px; padding:clamp(0.4rem,0.9vh,0.7rem) clamp(0.6rem,1.2vw,1rem);
+  font-size:var(--body-size); color:var(--off-white); line-height:1.4;
+}
+.impact-note strong { color:var(--red-bright); }
+
+/* ── SLIDE 12 — PERSONAL IMPACT ── */
+#s12 { background:var(--bg); }
+#s12 .bg-grid { opacity:0.35; }
+#s12 .blob1 { width:50vw; height:50vw; top:10%; right:-10%; background:rgba(0,80,20,0.15); }
+
+#s12 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s12 .pi-layout { display:grid; grid-template-columns:1fr 1fr; gap:clamp(1rem,2.5vw,2.5rem); align-items:center; }
+#s12 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  line-height:1.1;
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s12 h2 span { color:var(--green); }
+
+.story-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; padding:clamp(0.7rem,1.5vw,1.3rem);
+  display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem);
+}
+.sc-header {
+  display:flex; align-items:center; gap:0.6em;
+}
+.sc-avatar {
+  width:clamp(28px,4vw,44px); height:clamp(28px,4vw,44px);
+  border-radius:50%; background:linear-gradient(135deg,var(--green-dim),#003a15);
+  border:2px solid var(--green); display:flex; align-items:center; justify-content:center;
+  font-size:clamp(0.8rem,1.5vw,1.2rem); flex-shrink:0;
+}
+.sc-meta { display:flex; flex-direction:column; gap:0.1em; }
+.sc-name { font-weight:600; font-size:var(--body-size); color:var(--white); }
+.sc-sub { font-family:var(--font-mono); font-size:var(--small-size); color:var(--green); }
+.sc-body { font-size:var(--body-size); color:var(--off-white); line-height:1.55; font-weight:300; }
+.sc-body strong { color:var(--white); font-weight:500; }
+.sc-body em { color:var(--green); font-style:italic; }
+
+.passport-status {
+  display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem);
+}
+.ps-header {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--grey); text-transform:uppercase; letter-spacing:0.15em;
+  margin-bottom:0.1em;
+}
+.status-item {
+  display:flex; gap:0.6em; align-items:center;
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:6px; padding:clamp(0.35rem,0.8vh,0.6rem) clamp(0.5rem,1vw,0.9rem);
+}
+.si-dot {
+  width:clamp(7px,1vw,10px); height:clamp(7px,1vw,10px);
+  border-radius:50%; flex-shrink:0;
+}
+.si-dot.green { background:var(--green); box-shadow:0 0 6px var(--green); }
+.si-dot.red { background:var(--red-bright); box-shadow:0 0 6px var(--red-bright); }
+.si-dot.amber { background:#ffa500; box-shadow:0 0 6px #ffa500; }
+.si-text { font-size:var(--body-size); color:var(--off-white); }
+.si-text strong { color:var(--white); }
+.si-text .st { font-family:var(--font-mono); font-size:0.85em; }
+.si-text .st.down { color:var(--red-bright); }
+.si-text .st.up { color:var(--green); }
+
+/* ── SLIDE 13 — SINGLE PLATFORM RISK (CONCEPT 3) ── */
+#s13 { background:var(--bg); }
+#s13 .bg-grid { opacity:0.4; }
+
+#s13 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s13 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s13 h2 em { color:var(--red-bright); font-style:normal; }
+
+.risk-layout { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.8rem,2vw,1.8rem); }
+
+.risk-left { display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem); }
+.risk-point {
+  display:flex; gap:0.6em; align-items:flex-start;
+  padding:clamp(0.35rem,0.8vh,0.6rem) clamp(0.5rem,1vw,0.9rem);
+  background:var(--bg2); border:1px solid var(--border2); border-radius:6px;
+}
+.rp-icon { font-size:var(--body-size); flex-shrink:0; margin-top:0.05em; }
+.rp-text { font-size:var(--body-size); color:var(--off-white); line-height:1.4; }
+.rp-text strong { color:var(--white); display:block; margin-bottom:0.1em; }
+
+/* ── SLIDE 14 — ALE (CONCEPT 4) ── */
+#s14 { background:var(--bg); }
+#s14 .bg-grid { opacity:0.4; }
+
+#s14 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s14 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem);
+}
+#s14 h2 em { color:var(--green); font-style:normal; }
+
+.ale-layout { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.8rem,2vw,1.8rem); }
+
+.formula-box {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:clamp(0.7rem,1.5vw,1.3rem);
+  display:flex; flex-direction:column; gap:clamp(0.5rem,1.1vh,0.9rem);
+}
+.formula-box h4 {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.15em;
+}
+.formula {
+  font-family:var(--font-mono); font-size:clamp(0.75rem,1.5vw,1.1rem);
+  color:var(--white); line-height:1.6;
+  background:var(--bg3); padding:0.6em 0.8em; border-radius:5px;
+  border:1px solid var(--border2);
+}
+.formula .fv { color:var(--green); }
+.formula .fo { color:var(--grey); }
+.formula .fk { color:#febc2e; }
+
+.calc-example {
+  display:flex; flex-direction:column; gap:0.35em;
+}
+.ce-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0.2em 0; border-bottom:1px solid var(--border2);
+}
+.ce-row:last-child { border:none; }
+.ce-label { font-size:var(--small-size); color:var(--grey); }
+.ce-val { font-family:var(--font-mono); font-size:var(--body-size); color:var(--white); font-weight:700; }
+.ce-val.green { color:var(--green); }
+.ce-val.red { color:var(--red-bright); }
+
+.ale-right { display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem); }
+.ale-why {
+  background:var(--bg2); border:1px solid var(--border2); border-radius:8px;
+  padding:clamp(0.6rem,1.3vw,1.1rem);
+}
+.ale-why h4 {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.15em;
+  margin-bottom:clamp(0.4rem,0.8vh,0.6rem);
+}
+
+/* ── SLIDE 15 — RESPONSE & RECOVERY ── */
+#s15 { background:var(--bg); }
+#s15 .bg-grid { opacity:0.4; }
+#s15 .blob1 { width:40vw; height:40vw; top:5%; left:-10%; background:rgba(0,80,20,0.15); }
+
+#s15 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s15 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s15 h2 em { color:var(--green); font-style:normal; }
+
+.response-layout { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.8rem,2vw,1.8rem); }
+.resp-col { display:flex; flex-direction:column; gap:clamp(0.4rem,0.9vh,0.7rem); }
+.resp-header {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); text-transform:uppercase; letter-spacing:0.15em;
+  padding-bottom:0.3em; border-bottom:1px solid var(--border);
+}
+.resp-header.red { color:var(--red-bright); border-color:rgba(204,34,0,0.2); }
+.resp-item {
+  display:flex; gap:0.55em; align-items:flex-start;
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:6px; padding:clamp(0.35rem,0.8vh,0.6rem) clamp(0.5rem,1vw,0.8rem);
+}
+.ri-check {
+  font-size:var(--body-size); flex-shrink:0;
+  color:var(--green); margin-top:0.05em;
+}
+.ri-check.red { color:var(--red-bright); }
+.ri-text { font-size:var(--body-size); color:var(--off-white); line-height:1.4; }
+.ri-text strong { color:var(--white); display:block; margin-bottom:0.08em; }
+
+/* ── SLIDE 16 — LESSONS & RECOMMENDATIONS ── */
+#s16 { background:var(--bg); }
+#s16 .bg-grid { opacity:0.4; }
+
+#s16 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  height:100%; position:relative; z-index:2;
+}
+#s16 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s16 h2 em { color:var(--green); font-style:normal; }
+
+.lesson-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(0.4rem,1vw,0.8rem);
+}
+.lesson-card {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:8px; padding:clamp(0.5rem,1.1vw,0.9rem);
+  display:flex; gap:0.6em; align-items:flex-start;
+  position:relative; overflow:hidden;
+}
+.lesson-card::before {
+  content:''; position:absolute; top:0; left:0; bottom:0; width:3px;
+  background:var(--green);
+}
+.lc-num {
+  font-family:var(--font-mono); font-size:clamp(1.1rem,2vw,1.6rem);
+  font-weight:700; color:var(--green); opacity:0.25; flex-shrink:0; line-height:1;
+  margin-top:-0.05em;
+}
+.lc-content { flex:1; }
+.lc-title { font-weight:600; font-size:var(--body-size); color:var(--white); margin-bottom:0.15em; }
+.lc-desc { font-size:var(--small-size); color:var(--off-white); line-height:1.4; }
+
+/* ── SLIDE 17 — REFERENCES ── */
+#s17 { background:var(--bg); }
+#s17 .bg-grid { opacity:0.3; }
+
+#s17 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:flex-start;
+  padding-top:clamp(1.5rem,4vh,3.5rem); height:100%; position:relative; z-index:2;
+  overflow:hidden;
+}
+#s17 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--h2-size); color:var(--white);
+  margin-bottom:clamp(0.4rem,1vh,0.8rem); flex-shrink:0;
+}
+
+.ref-cols { display:grid; grid-template-columns:1fr 1fr; gap:clamp(0.5rem,1.2vw,1rem); flex:1; overflow:hidden; }
+.ref-col { display:flex; flex-direction:column; gap:clamp(0.3rem,0.7vh,0.55rem); overflow:hidden; }
+.ref-item {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:5px; padding:clamp(0.3rem,0.7vh,0.55rem) clamp(0.5rem,1vw,0.8rem);
+  border-left:2px solid var(--green);
+}
+.ref-item p {
+  font-size:var(--small-size); color:var(--off-white);
+  line-height:1.45; font-family:var(--font-body);
+}
+.ref-item p em { color:var(--green); font-style:italic; }
+.ref-item p a {
+  color:var(--grey); word-break:break-all; font-size:0.9em;
+  text-decoration:none;
+}
+.ref-num {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  color:var(--green); margin-bottom:0.15em; font-weight:700;
+}
+
+/* ── SLIDE 18 — CLOSING ── */
+#s18 { background:var(--bg); }
+#s18 .bg-grid { opacity:0.5; }
+#s18 .blob1 { width:50vw; height:50vw; bottom:-10%; right:-10%; background:rgba(0,80,20,0.2); }
+#s18 .blob2 { width:35vw; height:35vw; top:0; left:-10%; background:rgba(180,20,0,0.15); }
+
+#s18 .inner {
+  padding:var(--slide-padding);
+  display:flex; flex-direction:column; justify-content:center;
+  align-items:flex-start; height:100%; position:relative; z-index:2;
+}
+#s18 .flag-bar {
+  display:flex; gap:0; height:clamp(3px,0.5vh,5px);
+  width:clamp(30px,6vw,70px);
+  margin-bottom:clamp(0.8rem,2vh,1.5rem);
+  border-radius:2px; overflow:hidden; flex-shrink:0;
+}
+#s18 .flag-bar div { flex:1; }
+#s18 .flag-bar .f1,.f5 { background:#006600; }
+#s18 .flag-bar .f2,.f4 { background:#cc0000; }
+#s18 .flag-bar .f3 { background:#000; }
+
+#s18 h2 {
+  font-family:var(--font-display); font-weight:800;
+  font-size:var(--title-size); color:var(--white); line-height:1.05;
+  letter-spacing:-0.02em; max-width:14ch;
+  margin-bottom:clamp(0.5rem,1.2vh,1rem);
+}
+#s18 h2 span { color:var(--green); }
+#s18 h2 em { color:var(--red-bright); font-style:normal; }
+
+#s18 .takeaway {
+  font-size:clamp(0.8rem,1.5vw,1.1rem); color:var(--off-white);
+  line-height:1.55; max-width:55ch; font-weight:300;
+  margin-bottom:clamp(0.8rem,2vh,1.5rem);
+}
+#s18 .takeaway strong { color:var(--white); font-weight:500; }
+
+.concept-summary {
+  display:flex; flex-wrap:wrap; gap:clamp(0.3rem,0.7vw,0.55rem);
+}
+.cs-pill {
+  font-family:var(--font-mono); font-size:var(--small-size);
+  background:rgba(24,201,90,0.08); border:1px solid rgba(24,201,90,0.2);
+  color:var(--green); padding:0.25em 0.7em; border-radius:3px;
+  letter-spacing:0.05em;
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 1 — TITLE
+════════════════════════════════════════════ -->
+<section class="slide" id="s1">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="content">
+    <div class="kf-flag reveal">
+      <div class="k1"></div><div class="k2"></div><div class="k3"></div>
+      <div class="k4"></div><div class="k5"></div>
+    </div>
+    <h1 class="reveal">
+      Digital <span>Kenya</span><br>
+      Under <em>Siege</em>
+    </h1>
+    <p class="subtitle reveal">
+      The 2023 Anonymous Sudan DDoS Attack on eCitizen:<br>
+      When a Nation's Digital Infrastructure Becomes a Target
+    </p>
+    <div class="meta-row reveal">
+      <div class="meta-item">
+        <span class="mk">Date of Attack</span>
+        <span class="mv red">July 27, 2023</span>
+      </div>
+      <div class="meta-item">
+        <span class="mk">Platform</span>
+        <span class="mv">ecitizen.go.ke</span>
+      </div>
+      <div class="meta-item">
+        <span class="mk">Attack Type</span>
+        <span class="mv">DDoS — Layer 7</span>
+      </div>
+      <div class="meta-item">
+        <span class="mk">Services Disrupted</span>
+        <span class="mv red">5,000+</span>
+      </div>
+    </div>
+    <p class="course-badge reveal">ISM 6331 · Information Systems Security · Presentation</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 2 — AGENDA
+════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="bg-grid"></div>
+  <div class="slide-num">02 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Roadmap</p>
+    <h2 class="reveal">What We'll Cover</h2>
+    <div class="agenda-grid reveal">
+      <div class="agenda-item">
+        <span class="ai-num">01</span>
+        <div class="ai-text">
+          <strong>Background</strong>
+          <span class="sub">What is eCitizen? Kenya's digital-first ambition</span>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="ai-num">02</span>
+        <div class="ai-text">
+          <strong>The Geopolitical Trigger</strong>
+          <span class="sub">Sudan–Kenya tensions & Anonymous Sudan</span>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="ai-num">03</span>
+        <div class="ai-text">
+          <strong>The Attack Explained</strong>
+          <span class="sub">DDoS mechanics, Layer 7, botnet anatomy</span>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="ai-num">04</span>
+        <div class="ai-text">
+          <strong>Why It Worked</strong>
+          <span class="sub">Vulnerabilities, single-platform risk</span>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="ai-num">05</span>
+        <div class="ai-text">
+          <strong>Impact & Personal Story</strong>
+          <span class="sub">A nation frozen — and a passport left waiting</span>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <span class="ai-num">06</span>
+        <div class="ai-text">
+          <strong>Response, Recovery & Lessons</strong>
+          <span class="sub">5 CISSP concepts applied throughout</span>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">Five CISSP concepts integrated: AIC Triad · PDoS vs DDoS · SLA Metrics · ALE Risk Analysis · Controls Gap</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 3 — WHAT IS eCITIZEN
+════════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">03 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Background</p>
+    <div class="ecitizen-hero reveal">
+      <div>
+        <h2><span>eCitizen</span>: Kenya's<br>Digital Government Hub</h2>
+        <div class="divider"></div>
+        <p>Launched in 2014, <strong>ecitizen.go.ke</strong> is the Government of Kenya's unified online portal — a single website where any Kenyan (or visitor) can access over 5,000 government services without setting foot in a government office.</p>
+        <p>Think of it as the DMV, passport office, immigration department, business registry, and national health record system — all merged into <em>one website</em>. For non-Kenyans: this is roughly comparable to the U.S. government consolidating login.gov, USCIS, the SSA portal, and state DMV systems into a single platform.</p>
+        <p>In June 2023 — just weeks before the attack — President William Ruto expanded it from 700 to <strong>5,000+ services</strong>, celebrating it as a cornerstone of Kenya's anti-corruption digital agenda.</p>
+      </div>
+      <div class="ecitizen-portal reveal-right">
+        <div class="portal-bar">
+          <div class="portal-dots"><span></span><span></span><span></span></div>
+          <div class="portal-url">🔒 ecitizen.go.ke</div>
+        </div>
+        <div class="portal-body">
+          <div class="portal-header">
+            <div class="ph-flag">
+              <div class="pf1"></div><div class="pf2"></div><div class="pf3"></div>
+              <div class="pf4"></div><div class="pf5"></div>
+            </div>
+            <div>
+              <h3>eCitizen Kenya</h3>
+              <p>Government of Kenya — Serving Citizens Digitally</p>
+            </div>
+          </div>
+          <div class="portal-services">
+            <div class="ps-item"><span class="ps-icon">🛂</span><span class="ps-label">Passport Application & Renewal</span></div>
+            <div class="ps-item"><span class="ps-icon">🪪</span><span class="ps-label">National ID Registration</span></div>
+            <div class="ps-item"><span class="ps-icon">🚗</span><span class="ps-label">Driver's License (NTSA)</span></div>
+            <div class="ps-item"><span class="ps-icon">✈️</span><span class="ps-label">Visa Applications</span></div>
+            <div class="ps-item"><span class="ps-icon">💼</span><span class="ps-label">Business Registration</span></div>
+            <div class="ps-item"><span class="ps-icon">🏥</span><span class="ps-label">NHIF Health Insurance</span></div>
+            <div class="ps-item"><span class="ps-icon">🎓</span><span class="ps-label">University Applications (KUCCPS)</span></div>
+            <div class="ps-item"><span class="ps-icon">🏛️</span><span class="ps-label">Court Services & Land</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 4 — eCITIZEN BY THE NUMBERS
+════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="bg-grid"></div>
+  <div class="slide-num">04 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Scale & Stakes</p>
+    <h2 class="reveal">eCitizen in <span>Numbers</span></h2>
+    <div class="stat-row reveal">
+      <div class="stat-box">
+        <span class="stat-val">5,000+</span>
+        <span class="stat-label">Government services on one platform</span>
+        <span class="stat-sub">From 100+ ministries, departments & agencies</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-val">75M+</span>
+        <span class="stat-label">Transactions processed (2022 alone)</span>
+        <span class="stat-sub">Passports, IDs, licenses, permits, taxes</span>
+      </div>
+      <div class="stat-box red">
+        <span class="stat-val">3 days</span>
+        <span class="stat-label">Duration of the major outage</span>
+        <span class="stat-sub">July 23 – 27, 2023, during peak travel season</span>
+      </div>
+    </div>
+    <p class="label reveal" style="margin-top:clamp(0.4rem,1vh,0.8rem);">Services impacted during the attack</p>
+    <div class="service-pills reveal">
+      <span class="s-pill hi">🛂 Passport Applications</span>
+      <span class="s-pill hi">✈️ Visa Processing</span>
+      <span class="s-pill hi">🪪 National ID</span>
+      <span class="s-pill">🚗 Driver's Licenses</span>
+      <span class="s-pill">💡 Kenya Power (Electricity Tokens)</span>
+      <span class="s-pill">📱 M-Pesa Mobile Money</span>
+      <span class="s-pill">🚂 Kenya Railways Ticketing</span>
+      <span class="s-pill">💼 Business Registration</span>
+      <span class="s-pill">🏥 NHIF Health Services</span>
+      <span class="s-pill">🏛️ Court Filings</span>
+      <span class="s-pill">⛽ NOCK Fuel Services</span>
+      <span class="s-pill">🚦 NTSA Traffic Authority</span>
+    </div>
+    <p class="cite reveal">Anadolu Agency (2023); Biometric Update (2023); TechMonitor (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 5 — GEOPOLITICAL TRIGGER
+════════════════════════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">05 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">Context</p>
+    <h2 class="reveal">The <em>Political Spark</em> That<br>Started the Attack</h2>
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-date">April 15, 2023</div>
+          <div class="tl-text"><strong>Sudan erupts in civil war</strong> — rival military factions (SAF vs. RSF) begin fighting. The conflict kills thousands and displaces millions within weeks.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-date">June – July 2023</div>
+          <div class="tl-text"><strong>Kenya volunteers as mediator.</strong> President William Ruto is nominated to lead an East African peacekeeping effort. Sudan's government rejects Kenya, accusing it of "lacking neutrality" and <strong>doubting Sudanese sovereignty</strong>.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-date">Late July 2023</div>
+          <div class="tl-text"><strong>Sudanese general threatens Kenya</strong> publicly on social media, warning of consequences if peacekeeping troops are deployed.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-content">
+          <div class="tl-date red">July 27, 2023 — 00:00 EAT</div>
+          <div class="tl-text"><strong>Anonymous Sudan launches its attack.</strong> Telegram post: <em>"Kenyan critical infrastructure has been targeted and will continue to be targeted to teach its arrogant government a lesson."</em> Kenya wakes up to a broken internet.</div>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">TechCabal (2023); TechWeez (2023); CIPIT — Strathmore University (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 6 — THE ATTACK: WHAT HAPPENED
+════════════════════════════════════════════ -->
+<section class="slide" id="s6">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">06 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">The Incident</p>
+    <h2 class="reveal">What <em>Happened</em>: The Attack in Detail</h2>
+    <div class="attack-layout reveal">
+      <div class="attack-left">
+        <div class="attack-fact">
+          <div class="af-label">Technique Used</div>
+          <div class="af-val">Distributed Denial-of-Service (DDoS) — Layer 7 Application Attack</div>
+          <div class="af-sub">Targeted the web application layer, not just the network — computationally expensive for the server to handle</div>
+        </div>
+        <div class="attack-fact">
+          <div class="af-label">Vector</div>
+          <div class="af-val">Botnet of thousands of compromised machines flooding HTTP requests simultaneously</div>
+          <div class="af-sub">Requests appeared legitimate — making filtering extremely difficult in real-time</div>
+        </div>
+        <div class="attack-fact">
+          <div class="af-label">Duration</div>
+          <div class="af-val">Major outage: ~3 days (July 23–27). Intermittent disruptions continued for a week+</div>
+          <div class="af-sub">Group promised "the biggest attack will come after Friday prayers"</div>
+        </div>
+        <div class="attack-fact">
+          <div class="af-label">Government Response (ICT CS Eliud Owalo)</div>
+          <div class="af-val">Source IP addresses were blocked; no data was compromised or stolen</div>
+          <div class="af-sub">Hackers disputed this claim on Telegram, taunting the minister publicly</div>
+        </div>
+      </div>
+      <div class="terminal-box">
+        <div class="terminal-title-bar">
+          <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="t-label">attack_log.txt — Anonymous Sudan Telegram (July 27, 2023)</span>
+        </div>
+        <div class="terminal-body">
+          <span class="t-line"><span class="t-warn">[ATTACK INITIATED]</span></span>
+          <span class="t-line"><span class="t-output">Target: ecitizen.go.ke</span></span>
+          <span class="t-line"><span class="t-output">Method: HTTP Flood (Layer 7)</span></span>
+          <span class="t-line"><span class="t-output">Botnet nodes: distributed globally</span></span>
+          <span class="t-line"> </span>
+          <span class="t-line"><span class="t-warn">[STATUS]</span> <span class="t-hi">DOWN — 3 days and counting</span></span>
+          <span class="t-line"><span class="t-output">5,000+ services: UNREACHABLE</span></span>
+          <span class="t-line"><span class="t-output">M-Pesa: DISRUPTED</span></span>
+          <span class="t-line"><span class="t-output">Kenya Power: DISRUPTED</span></span>
+          <span class="t-line"><span class="t-output">Kenya Railways: DISRUPTED</span></span>
+          <span class="t-line"> </span>
+          <span class="t-line"><span class="t-prompt">Anon_Sudan &gt;</span> <span class="t-cmd">"We hope Kenyans</span></span>
+          <span class="t-line"><span class="t-cmd">  now know who the Sudanese are."</span></span>
+          <span class="t-line"><span class="t-warn">[NEXT WAVE PROMISED]</span><span class="t-cursor"></span></span>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">East African (2023); TechMonitor (2023); Biometric Update (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 7 — WHO IS ANONYMOUS SUDAN
+════════════════════════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="bg-grid"></div>
+  <div class="slide-num">07 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">The Threat Actor</p>
+    <h2 class="reveal">Who is <em>Anonymous Sudan</em>?</h2>
+    <div class="anon-layout reveal">
+      <div class="anon-card">
+        <h4>Group Profile</h4>
+        <ul class="anon-list">
+          <li><strong>Claims to be:</strong> Sudanese Islamist hacktivists retaliating against enemies of Sudan</li>
+          <li><strong>Active since:</strong> January 2023 — only months before the Kenya attack</li>
+          <li><strong>Method signature:</strong> High-volume HTTP flood attacks on Layer 7 (application layer) — described by Orange Cyberdefense as <em>"unprecedented in DDoS sophistication"</em></li>
+          <li><strong>Notable prior targets:</strong> Microsoft (Azure outage), Israel, UAE, France, Australia, AO3 (Archive of Our Own)</li>
+          <li class="red"><strong>Real identity suspected:</strong> Affiliated with or operating as a front for the pro-Russian hacking group <strong>Killnet</strong></li>
+        </ul>
+      </div>
+      <div class="suspicion-box">
+        <h4>🚨 Why Analysts Suspect Russia</h4>
+        <div class="sus-item">
+          <span class="sus-icon">🔗</span>
+          <div class="sus-text"><strong>Killnet connection:</strong> Identical attack signatures, shared infrastructure, and joint Telegram announcements with confirmed Russian hackers</div>
+        </div>
+        <div class="sus-item">
+          <span class="sus-icon">🎯</span>
+          <div class="sus-text"><strong>Target pattern:</strong> Almost all targets share ties with the West or Ukraine — Kenya has strong U.S. ties</div>
+        </div>
+        <div class="sus-item">
+          <span class="sus-icon">🌐</span>
+          <div class="sus-text"><strong>Too sophisticated:</strong> The Layer 7 precision and botnet size exceeded what a small African hacktivist group could deploy</div>
+        </div>
+        <div class="sus-item">
+          <span class="sus-icon">💬</span>
+          <div class="sus-text"><strong>Prior to Kenya:</strong> Cloudflare published a report on Anonymous Sudan's "unprecedented escalation in DDoS sophistication" alongside Russian actors</div>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">TechCabal (2023); TechNext (2023); TechMonitor — Gooding (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 8 — DDoS EXPLAINED + CONCEPT 1 (AIC TRIAD)
+════════════════════════════════════════════ -->
+<section class="slide" id="s8">
+  <div class="bg-grid"></div>
+  <div class="slide-num">08 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Technical Breakdown + <span style="color:var(--green)">CISSP Concept #1</span></p>
+    <h2 class="reveal">How DDoS Works — and Why <em>Availability</em> Matters Most</h2>
+    <div class="ddos-layout reveal">
+      <div class="attack-diagram">
+        <div class="ad-title">DDoS Attack Flow — Layer 7 HTTP Flood</div>
+        <div class="flow-diagram">
+          <div class="flow-row">
+            <div class="flow-node red">Botnet Node 1<br><small>São Paulo</small></div>
+            <div class="flow-node red">Botnet Node 2<br><small>Moscow</small></div>
+            <div class="flow-node red">Botnet Node 3<br><small>Jakarta</small></div>
+            <div class="flow-node red">...1000s more</div>
+          </div>
+          <div class="flow-arrow down" style="text-align:center">↓ ↓ ↓ ↓ Millions of HTTP GET Requests</div>
+          <div class="flow-row">
+            <div class="flow-node" style="flex:none;width:clamp(100px,18vw,160px);">Kenya ISP / CDN<br><small>(No scrubbing)</small></div>
+          </div>
+          <div class="flow-arrow down" style="text-align:center">↓ Traffic passes through — overwhelms server</div>
+          <div class="flow-row">
+            <div class="flow-node target">ecitizen.go.ke<br><small>🔴 SERVER OVERLOADED — DOWN</small></div>
+          </div>
+        </div>
+        <p style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--grey);margin-top:0.5em;line-height:1.4;">"Like Thika Road during rush hour — thousands of extra cars flood in all at once." — Moses Kemibaro, Dotsavvy Africa CEO</p>
+      </div>
+      <div class="concept-block">
+        <div class="cb-header">
+          <span class="cb-num">01</span>
+          <div class="cb-title-group">
+            <span class="cb-concept">CISSP Concept #1</span>
+            <span class="cb-name">AIC Triad:<br>Availability First</span>
+          </div>
+        </div>
+        <p class="cb-definition">The CIA Triad — Confidentiality, Integrity, Availability — defines security priorities. The <strong>order is not fixed</strong>; it shifts based on mission. For a citizen-services platform, <strong>Availability becomes the top priority</strong> — the "AIC" model — because service delivery is the core function.</p>
+        <div class="cb-quote">
+          <em>"Availability means authorized subjects are granted timely and uninterrupted access to objects... Availability includes efficient uninterrupted access to objects and prevention of denial-of-service (DoS) attacks."</em>
+        </div>
+        <div class="cb-application"><strong>Applied to Kenya:</strong> By flooding the server, Anonymous Sudan attacked the Availability pillar directly — denying 47 million Kenyans access to critical services. The attack didn't steal data; it made the platform functionally non-existent.</div>
+      </div>
+    </div>
+    <p class="cite reveal">Tuko.co.ke (2023); Stewart, J. M. et al., CISSP Study Guide; CIPIT (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 9 — PDoS vs DDoS (CONCEPT 2)
+════════════════════════════════════════════ -->
+<section class="slide" id="s9">
+  <div class="bg-grid"></div>
+  <div class="slide-num">09 / 18</div>
+  <div class="inner">
+    <p class="label reveal">CISSP Concept #2</p>
+    <h2 class="reveal">DDoS vs. Permanent DoS — Was Kenya Lucky?</h2>
+    <div class="comparison-grid reveal">
+      <div class="comp-col">
+        <div class="comp-header teal">
+          <h3>DDoS (What Happened)</h3>
+          <p class="ch-sub">Temporary Flooding Attack</p>
+        </div>
+        <div class="comp-body">
+          <div class="comp-row">
+            <span class="comp-icon">⏱️</span>
+            <div class="comp-text"><strong>Time-limited</strong> Lasts only while the attacker maintains the flood — stops when attack ceases</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">🔄</span>
+            <div class="comp-text"><strong>Recoverable</strong> Block source IPs, wait out the attack, restore services from existing infrastructure</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">💾</span>
+            <div class="comp-text"><strong>No data destruction</strong> Systems remain intact — eCitizen data was safe; services resumed after 3 days</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">✅</span>
+            <div class="comp-text"><strong>Kenya's outcome:</strong> ICT teams blocked source IPs; services restored July 27, 2023 at 6:30 PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-col">
+        <div class="comp-header danger">
+          <h3>PDoS (The Worse Scenario)</h3>
+          <p class="ch-sub">Permanent Denial of Service</p>
+        </div>
+        <div class="comp-body">
+          <div class="comp-row">
+            <span class="comp-icon">💀</span>
+            <div class="comp-text"><strong>Irreversible damage</strong> Destroys data, corrupts firmware, or installs malicious software — cannot be undone with a reboot</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">🔥</span>
+            <div class="comp-text"><strong>Hardware-level attacks</strong> Can force faulty firmware flashes on routers, servers, IoT devices — physically bricking them</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">📚</span>
+            <div class="comp-text"><strong>CISSP definition:</strong> "Replacement of software with malicious alternatives, or forcing a firmware flash... renders a permanently damaged system not able to be restored."</div>
+          </div>
+          <div class="comp-row">
+            <span class="comp-icon">⚠️</span>
+            <div class="comp-text"><strong>If PDoS had struck Kenya:</strong> Passport records, ID databases, and health records could have been permanently destroyed — a national catastrophe</div>
+          </div>
+        </div>
+      </div>
+      <div class="kenya-verdict">
+        <span class="kv-badge">CISSP Insight</span>
+        <div class="kv-text">Kenya experienced a <strong>temporary DDoS</strong> — painful, but recoverable. The CISSP distinction between PDoS and DDoS matters enormously for risk planning: a PDoS on eCitizen could have erased decades of citizen records. <strong>Kenya was fortunate the attacker chose disruption over destruction.</strong></div>
+      </div>
+    </div>
+    <p class="cite reveal">Stewart, J. M. et al., CISSP Study Guide (Ch. 1–2); East African (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 10 — WHY IT WORKED + CONTROLS GAP (CONCEPT 5)
+════════════════════════════════════════════ -->
+<section class="slide" id="s10">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">10 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">Vulnerabilities + CISSP Concept #5</p>
+    <h2 class="reveal">Why Was the System <em>So Easily</em> Penetrated?</h2>
+    <div class="vuln-layout reveal">
+      <div class="vuln-list">
+        <div class="vuln-item">
+          <span class="vi-icon">🎯</span>
+          <div class="vi-content">
+            <div class="vi-title">Single Point of Failure</div>
+            <div class="vi-desc">All 5,000+ services lived on one platform. One attack vector brought down everything simultaneously — no service isolation or redundancy.</div>
+          </div>
+        </div>
+        <div class="vuln-item">
+          <span class="vi-icon">⚡</span>
+          <div class="vi-content">
+            <div class="vi-title">Rapid, Under-Hardened Expansion</div>
+            <div class="vi-desc">The platform had just been expanded from 700 to 5,000 services weeks before the attack. Security review could not keep pace with the deployment speed.</div>
+          </div>
+        </div>
+        <div class="vuln-item">
+          <span class="vi-icon">🛡️</span>
+          <div class="vi-content">
+            <div class="vi-title">No Layer 7 DDoS Mitigation</div>
+            <div class="vi-desc">Standard firewalls block Layer 3/4 attacks but not sophisticated Layer 7 HTTP floods. A CDN or scrubbing service (e.g., Cloudflare, Akamai) was not in place.</div>
+          </div>
+        </div>
+        <div class="vuln-item">
+          <span class="vi-icon">📊</span>
+          <div class="vi-content">
+            <div class="vi-title">Insufficient Traffic Capacity</div>
+            <div class="vi-desc">The infrastructure was built to handle normal citizen traffic, not a coordinated global botnet. No rate-limiting or traffic shaping was deployed at scale.</div>
+          </div>
+        </div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-header">
+          <span class="cb-num">05</span>
+          <div class="cb-title-group">
+            <span class="cb-concept">CISSP Concept #5</span>
+            <span class="cb-name">The Controls Gap</span>
+          </div>
+        </div>
+        <p class="cb-definition">The gap between <strong>Total Risk</strong> (zero protection) and <strong>Residual Risk</strong> (risk after safeguards) is called the <em>Controls Gap</em> — it measures how much risk your defenses actually remove.</p>
+        <div class="cb-quote">
+          <em>"Total risk is the amount of risk an organization would face if no safeguards were implemented... The <strong>controls gap</strong> is the amount of risk that is reduced by implementing safeguards."</em>
+        </div>
+        <div class="cb-application">
+          <strong>Kenya's Controls Gap was dangerously wide.</strong> Without DDoS scrubbing, rate limiting, or CDN protection, the gap between total and residual risk was minimal — meaning safeguards removed very little of the threat. Anonymous Sudan exploited this gap entirely.
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">TechMonitor (2023); Stewart, J. M. et al., CISSP Study Guide; Tuko.co.ke (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 11 — THE DOMINO EFFECT
+════════════════════════════════════════════ -->
+<section class="slide" id="s11">
+  <div class="bg-grid"></div>
+  <div class="slide-num">11 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">Cascading Impact</p>
+    <h2 class="reveal">The <em>Domino Effect</em>: Everything That Fell</h2>
+    <div class="domino-grid reveal">
+      <div class="domino-card">
+        <div class="dc-icon">🌐</div>
+        <div class="dc-name">eCitizen Portal</div>
+        <div class="dc-impact">All 5,000+ government services offline. Passport, ID, visa, license, court, tax services — completely inaccessible.</div>
+        <div class="dc-badge">CORE TARGET</div>
+      </div>
+      <div class="domino-card">
+        <div class="dc-icon">📱</div>
+        <div class="dc-name">M-Pesa (Safaricom)</div>
+        <div class="dc-impact">Kenya's dominant mobile money platform disrupted. Over KSh 81B ($570M) in daily transactions frozen. Counties couldn't collect parking fees.</div>
+        <div class="dc-badge">$570M/DAY FROZEN</div>
+      </div>
+      <div class="domino-card">
+        <div class="dc-icon">💡</div>
+        <div class="dc-name">Kenya Power (KPLC)</div>
+        <div class="dc-impact">Citizens couldn't purchase electricity tokens online — needed for prepaid meters used by millions of Kenyan households.</div>
+        <div class="dc-badge">HOMES AFFECTED</div>
+      </div>
+      <div class="domino-card">
+        <div class="dc-icon">🚂</div>
+        <div class="dc-name">Kenya Railways</div>
+        <div class="dc-impact">Online ticketing and booking system went down. Commuters stranded; revenue collection disrupted for the standard gauge railway.</div>
+        <div class="dc-badge">TRANSPORT DOWN</div>
+      </div>
+      <div class="domino-card">
+        <div class="dc-icon">🚦</div>
+        <div class="dc-name">NTSA (Transport Authority)</div>
+        <div class="dc-impact">Driver testing, vehicle inspections, and license renewals suspended. Thousands of appointments cancelled nationwide.</div>
+        <div class="dc-badge">LICENSING HALTED</div>
+      </div>
+      <div class="domino-card green-top">
+        <div class="dc-icon">✈️</div>
+        <div class="dc-name">Visas on Arrival</div>
+        <div class="dc-impact">Kenya's Ministry of Foreign Affairs declared visa-on-arrival for ALL nationalities as the online visa system was down — an emergency workaround.</div>
+        <div class="dc-badge">EMERGENCY RESPONSE</div>
+      </div>
+    </div>
+    <div class="impact-note reveal">
+      <strong>The scale of disruption:</strong> Kenya processed KSh 29.55 trillion (~$207B) on M-Pesa in FY2022 — roughly <strong>KSh 81B ($570M) per day</strong>. Every hour of disruption had measurable economic cost. This was not a website going down — it was a nation's economy seizing up.
+    </div>
+    <p class="cite reveal">East African (2023); Anadolu Agency (2023); Biometric Update (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 12 — PERSONAL IMPACT
+════════════════════════════════════════════ -->
+<section class="slide" id="s12">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">12 / 18</div>
+  <div class="inner">
+    <p class="label reveal">A Personal Story</p>
+    <div class="pi-layout reveal">
+      <div>
+        <h2>This Was <span>My Life</span><br>on Hold</h2>
+        <div class="divider"></div>
+        <div class="story-card">
+          <div class="sc-header">
+            <div class="sc-avatar">👤</div>
+            <div class="sc-meta">
+              <span class="sc-name">Student, ISM 6331</span>
+              <span class="sc-sub">Nairobi, Kenya — July 2023</span>
+            </div>
+          </div>
+          <div class="sc-body">
+            <p>In July 2023, I was applying for my Kenyan passport — a document I needed to travel to the United States for graduate studies. The <strong>only way to apply</strong> for a Kenyan passport is through eCitizen. <em>There is no walk-in option, no phone line, no alternative.</em></p>
+            <br>
+            <p>When Anonymous Sudan's attack hit, <strong>the portal went completely dark.</strong> Appointment slots I had been waiting weeks for became inaccessible. Payment couldn't go through. The status page returned nothing but errors.</p>
+            <br>
+            <p>I wasn't alone — <em>thousands of Kenyans were in the same situation</em>: people with flights booked, visa interviews scheduled at U.S. embassies, families waiting to be reunited. For three days, a nation's plans were held hostage by an offshore botnet.</p>
+          </div>
+        </div>
+      </div>
+      <div class="passport-status">
+        <div class="ps-header">eCitizen Service Status — July 27, 2023</div>
+        <div class="status-item">
+          <div class="si-dot red"></div>
+          <div class="si-text"><strong>Passport Application Portal</strong><br><span class="st down">● OFFLINE — Service Unavailable</span></div>
+        </div>
+        <div class="status-item">
+          <div class="si-dot red"></div>
+          <div class="si-text"><strong>Payment Gateway</strong><br><span class="st down">● FAILED — Cannot Process Transactions</span></div>
+        </div>
+        <div class="status-item">
+          <div class="si-dot red"></div>
+          <div class="si-text"><strong>Appointment Booking</strong><br><span class="st down">● TIMEOUT — Server Not Responding</span></div>
+        </div>
+        <div class="status-item">
+          <div class="si-dot red"></div>
+          <div class="si-text"><strong>Document Upload</strong><br><span class="st down">● ERROR 503 — Gateway Down</span></div>
+        </div>
+        <div class="status-item">
+          <div class="si-dot amber"></div>
+          <div class="si-text"><strong>Visa-on-Arrival (Emergency)</strong><br><span class="st" style="color:#ffa500;">● ACTIVE — Temporary workaround only</span></div>
+        </div>
+        <div class="status-item">
+          <div class="si-dot green"></div>
+          <div class="si-text"><strong>Services Restored</strong><br><span class="st up">● ONLINE — July 27, 2023, 6:30 PM EAT</span></div>
+        </div>
+        <p style="font-size:var(--small-size);color:var(--grey);margin-top:0.3em;line-height:1.4;">This is what every Kenyan with urgent travel plans faced. For some, the wait meant missed flights, lapsed visas, and shattered plans.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 13 — SINGLE PLATFORM RISK + CONCEPT 3 (SLA)
+════════════════════════════════════════════ -->
+<section class="slide" id="s13">
+  <div class="bg-grid"></div>
+  <div class="slide-num">13 / 18</div>
+  <div class="inner">
+    <p class="label red reveal">Structural Risk + CISSP Concept #3</p>
+    <h2 class="reveal">The <em>Single Platform Problem</em> & Why SLAs Failed</h2>
+    <div class="risk-layout reveal">
+      <div class="risk-left">
+        <div class="risk-point">
+          <span class="rp-icon">🏗️</span>
+          <div class="rp-text">
+            <strong>No Redundancy by Design</strong>
+            Kenya's digital strategy was "consolidate everything" — efficient under normal conditions, catastrophic under attack. One successful hit shutters the entire digital government.
+          </div>
+        </div>
+        <div class="risk-point">
+          <span class="rp-icon">🌍</span>
+          <div class="rp-text">
+            <strong>Comparable Global Failures</strong>
+            Costa Rica (Conti ransomware, 2022), Vanuatu (full government hack, 2022), and Ukraine (ongoing) all show that digital-first governments face disproportionate risk when centralized.
+          </div>
+        </div>
+        <div class="risk-point">
+          <span class="rp-icon">📈</span>
+          <div class="rp-text">
+            <strong>Rapid Expansion Without Security Hardening</strong>
+            Services grew from 700 → 5,000 in one announcement. Security architecture, penetration testing, and DDoS protection could not scale at the same pace.
+          </div>
+        </div>
+        <div class="risk-point">
+          <span class="rp-icon">🔐</span>
+          <div class="rp-text">
+            <strong>Citizens Had No Alternatives</strong>
+            Unlike older hybrid systems, eCitizen was the <em>only</em> path for services. No offline fallback, no secondary portal, no manual processing pipeline remained operational.
+          </div>
+        </div>
+      </div>
+      <div class="concept-block">
+        <div class="cb-header">
+          <span class="cb-num">03</span>
+          <div class="cb-title-group">
+            <span class="cb-concept">CISSP Concept #3</span>
+            <span class="cb-name">SLA Performance<br>Metrics: Peak Load &<br>Maximum Downtime</span>
+          </div>
+        </div>
+        <p class="cb-definition">Service-Level Agreements (SLAs) with cloud/hosting providers define <strong>Peak Load</strong> (max traffic handled) and <strong>Maximum Consecutive Downtime</strong> (threshold before penalties apply). These metrics are the legal and technical backbone of uptime guarantees.</p>
+        <div class="cb-quote">
+          <em>"SLAs are important when using any type of third-party service provider, which would include cloud services... <strong>Maximum consecutive downtime</strong>... <strong>Peak load</strong>... Average load..."</em>
+        </div>
+        <div class="cb-application">
+          <strong>Kenya's failure:</strong> The eCitizen platform's SLA likely did not account for nation-state-level DDoS Peak Load. The attack exceeded defined thresholds, triggering 3+ days of maximum downtime — exposing a gap between contract guarantees and real-world threat scenarios.
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">Stewart, J. M. et al., CISSP Study Guide; TechMonitor (2023); CIPIT (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 14 — RISK ANALYSIS + CONCEPT 4 (ALE)
+════════════════════════════════════════════ -->
+<section class="slide" id="s14">
+  <div class="bg-grid"></div>
+  <div class="slide-num">14 / 18</div>
+  <div class="inner">
+    <p class="label reveal">CISSP Concept #4</p>
+    <h2 class="reveal">Quantifying the Risk: <em>ALE Analysis</em> for Kenya</h2>
+    <div class="ale-layout reveal">
+      <div class="formula-box">
+        <h4>The ALE Framework</h4>
+        <div class="formula">
+          <span class="fk">ALE</span> <span class="fo">=</span> <span class="fv">SLE</span> <span class="fo">×</span> <span class="fv">ARO</span>
+        </div>
+        <p style="font-size:var(--small-size);color:var(--off-white);line-height:1.5;margin-top:0.4em;">
+          <strong style="color:var(--green);">SLE</strong> = Single Loss Expectancy (cost of one DDoS event)<br>
+          <strong style="color:var(--green);">ARO</strong> = Annualized Rate of Occurrence (attacks/year)<br>
+          <strong style="color:var(--green);">ALE</strong> = Annual expected cost of this threat
+        </p>
+        <h4 style="margin-top:0.5em;">Kenya 2023 — Estimated Calculation</h4>
+        <div class="calc-example">
+          <div class="ce-row">
+            <span class="ce-label">M-Pesa daily volume</span>
+            <span class="ce-val">$570M/day</span>
+          </div>
+          <div class="ce-row">
+            <span class="ce-label">Duration of disruption</span>
+            <span class="ce-val">~3 days</span>
+          </div>
+          <div class="ce-row">
+            <span class="ce-label">SLE (economic disruption est.)</span>
+            <span class="ce-val red">~$1.7B+</span>
+          </div>
+          <div class="ce-row">
+            <span class="ce-label">ARO (DDoS frequency, Kenya 2023)</span>
+            <span class="ce-val">2–3×/year</span>
+          </div>
+          <div class="ce-row">
+            <span class="ce-label">ALE (annualized risk)</span>
+            <span class="ce-val green">$3.4–5.1B</span>
+          </div>
+        </div>
+      </div>
+      <div class="ale-right">
+        <div class="concept-block" style="flex:1;">
+          <div class="cb-header">
+            <span class="cb-num">04</span>
+            <div class="cb-title-group">
+              <span class="cb-concept">CISSP Concept #4</span>
+              <span class="cb-name">Quantitative Risk<br>Analysis: ALE</span>
+            </div>
+          </div>
+          <p class="cb-definition">ALE converts vague risk language into concrete financial figures. Management cannot justify DDoS mitigation investments without knowing the annual cost of inaction.</p>
+          <div class="cb-quote">
+            <em>"The <strong>annualized loss expectancy (ALE)</strong> is the possible yearly cost of all instances of a specific realized threat against a specific asset. <strong>ALE = SLE × ARO</strong>."</em>
+          </div>
+          <div class="cb-application">
+            <strong>Decision power:</strong> If Cloudflare DDoS protection costs $500K/year but the ALE is $3.4B — the ROI on mitigation is obvious. ALE transforms "we should secure this" into "we cannot afford not to."
+          </div>
+        </div>
+        <div class="card" style="margin-top:clamp(0.4rem,0.9vh,0.7rem);">
+          <p style="font-family:var(--font-mono);font-size:var(--small-size);color:var(--grey);">NOTE: SLE figures are estimates based on M-Pesa transaction data. Actual losses include: lost tax revenue, government overtime, emergency infrastructure costs, and reputational damage to Kenya's digital economy brand. The real number is likely higher.</p>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">Stewart, J. M. et al., CISSP Study Guide; East African (2023) — M-Pesa transaction data</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 15 — RESPONSE & RECOVERY
+════════════════════════════════════════════ -->
+<section class="slide" id="s15">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="slide-num">15 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Recovery</p>
+    <h2 class="reveal">How Kenya <em>Responded</em> — Immediate & Long-Term</h2>
+    <div class="response-layout reveal">
+      <div class="resp-col">
+        <div class="resp-header">⚡ Immediate Response (Days 1–3)</div>
+        <div class="resp-item">
+          <span class="ri-check">✓</span>
+          <div class="ri-text"><strong>IP Blocking</strong> ICT teams identified and blocked source IP addresses flooding the platform, gradually reducing attack volume</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check">✓</span>
+          <div class="ri-text"><strong>Government Communication</strong> CS Eliud Owalo publicly confirmed the attack, reassured citizens no data was lost — critical for maintaining public trust</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check">✓</span>
+          <div class="ri-text"><strong>Visa-on-Arrival Policy</strong> Ministry of Foreign Affairs immediately activated emergency visa-on-arrival for all travelers — preventing a diplomatic crisis</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check">✓</span>
+          <div class="ri-text"><strong>Service Restoration</strong> eCitizen declared fully restored at 6:30 PM on July 27 — Interior Ministry confirmed all services resumed</div>
+        </div>
+      </div>
+      <div class="resp-col">
+        <div class="resp-header red">🔒 Long-Term Security Commitments</div>
+        <div class="resp-item">
+          <span class="ri-check red">→</span>
+          <div class="ri-text"><strong>DDoS Mitigation Infrastructure</strong> Government pledged to implement traffic scrubbing and rate-limiting to handle future volumetric attacks</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check red">→</span>
+          <div class="ri-text"><strong>Critical Infrastructure Review</strong> National Computer and Cybercrime Coordination Committee (NC4) launched full security audit of government digital assets</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check red">→</span>
+          <div class="ri-text"><strong>Updated Cybersecurity Laws</strong> CIPIT analysis called for stronger enforcement of Kenya's Computer Misuse & Cybercrimes Act (2018) with new DDoS provisions</div>
+        </div>
+        <div class="resp-item">
+          <span class="ri-check red">→</span>
+          <div class="ri-text"><strong>Redundancy Planning</strong> Proposed introduction of service isolation — so a single attack cannot bring down all 5,000+ services simultaneously</div>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">East African (2023); Anadolu Agency (2023); CIPIT — Strathmore (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 16 — LESSONS & RECOMMENDATIONS
+════════════════════════════════════════════ -->
+<section class="slide" id="s16">
+  <div class="bg-grid"></div>
+  <div class="slide-num">16 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Key Takeaways</p>
+    <h2 class="reveal">Lessons & <em>Recommendations</em></h2>
+    <div class="lesson-grid reveal">
+      <div class="lesson-card">
+        <span class="lc-num">01</span>
+        <div class="lc-content">
+          <div class="lc-title">Availability Must Be Engineered, Not Assumed</div>
+          <div class="lc-desc">The AIC model demands proactive investment in uptime — CDNs, load balancers, DDoS scrubbers, and failover systems. If citizens depend on you 24/7, your defenses must match that promise.</div>
+        </div>
+      </div>
+      <div class="lesson-card">
+        <span class="lc-num">02</span>
+        <div class="lc-content">
+          <div class="lc-title">Centralization is a Force Multiplier for Attackers</div>
+          <div class="lc-desc">Consolidating 5,000 services on one domain is efficient but creates a catastrophic single point of failure. Microservice architecture and distributed DNS can isolate blast radius.</div>
+        </div>
+      </div>
+      <div class="lesson-card">
+        <span class="lc-num">03</span>
+        <div class="lc-content">
+          <div class="lc-title">SLA Provisions Must Anticipate Nation-State Threats</div>
+          <div class="lc-desc">Government SLAs must explicitly address hostile DDoS peak loads — not just normal traffic spikes. Contractual maximum downtime clauses must include cyber-incident scenarios.</div>
+        </div>
+      </div>
+      <div class="lesson-card">
+        <span class="lc-num">04</span>
+        <div class="lc-content">
+          <div class="lc-title">Use ALE to Make the Business Case for Security</div>
+          <div class="lc-desc">When the ALE exceeds $3B, a $500K/year DDoS protection contract is a no-brainer. Quantitative risk analysis turns "security is important" into "here's the ROI." Leaders respond to numbers.</div>
+        </div>
+      </div>
+      <div class="lesson-card">
+        <span class="lc-num">05</span>
+        <div class="lc-content">
+          <div class="lc-title">Close the Controls Gap Before the Attack, Not After</div>
+          <div class="lc-desc">Kenya had wide Total Risk and minimal safeguards — the controls gap was enormous. Rate limiting, geo-blocking, IP reputation filtering, and WAF rules should have been standard from launch.</div>
+        </div>
+      </div>
+      <div class="lesson-card">
+        <span class="lc-num">06</span>
+        <div class="lc-content">
+          <div class="lc-title">Ethical Obligation: Governments Owe Digital Resilience</div>
+          <div class="lc-desc">When citizens have no alternative to a digital platform, the government assumes a duty of care that goes beyond convenience. Downtime isn't an inconvenience — it is a denial of rights.</div>
+        </div>
+      </div>
+    </div>
+    <p class="cite reveal">CISSP Study Guide (Ch. 1–2); CIPIT (2023); TechMonitor (2023)</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 17 — REFERENCES (APA)
+════════════════════════════════════════════ -->
+<section class="slide" id="s17">
+  <div class="bg-grid"></div>
+  <div class="slide-num">17 / 18</div>
+  <div class="inner">
+    <p class="label reveal">Bibliography</p>
+    <h2 class="reveal">References — APA Format</h2>
+    <div class="ref-cols reveal">
+      <div class="ref-col">
+        <div class="ref-item">
+          <div class="ref-num">[1]</div>
+          <p>Anadolu Agency. (2023). <em>Kenyan gov't says its e-Citizen portal suffered cyberattack.</em> Retrieved from <a href="https://www.aa.com.tr/en/africa/kenyan-gov-t-says-its-e-citizen-portal-suffered-cyberattack/2956271">aa.com.tr</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[2]</div>
+          <p>Biometric Update. (2023, July). <em>Cyberattack on Kenya's digital infrastructure continues.</em> Retrieved from <a href="https://www.biometricupdate.com/202307/cyberattack-on-kenyas-digital-infrastructure-continues">biometricupdate.com</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[3]</div>
+          <p>Gooding, M. (2023, July 31). <em>Anonymous Sudan DDoS cyberattacks cripple Kenya's new e-Citizen digital infrastructure.</em> TechMonitor. Retrieved from <a href="https://www.techmonitor.ai/technology/cybersecurity/anonymous-sudan-kenya-ddos-cyberattack-ecitizen">techmonitor.ai</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[4]</div>
+          <p>Kitili, J., & Abiero, D. (2023, August 22). <em>Kenya's digital infrastructure under threat? A look at Anonymous Sudan's thwarted cyberattack attempt.</em> CIPIT, Strathmore University. Retrieved from <a href="https://cipit.strathmore.edu/kenyas-digital-infrastructure-under-threat">cipit.strathmore.edu</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[5]</div>
+          <p>TechCabal. (2023, July 27). <em>Anonymous Sudan: The group behind recent anti-Kenya cyberattacks.</em> Retrieved from <a href="https://techcabal.com/2023/07/27/pro-sudan-hackers-attack-digital-services-in-kenya/">techcabal.com</a></p>
+        </div>
+      </div>
+      <div class="ref-col">
+        <div class="ref-item">
+          <div class="ref-num">[6]</div>
+          <p>The East African. (2023, July 28). <em>M-Pesa, key govt services unavailable as Kenya grappled with cyberattack.</em> Retrieved from <a href="https://www.theeastafrican.co.ke/tea/news/east-africa/services-unavailable-as-kenya-grappled-with-cyberattack-4318812">theeastafrican.co.ke</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[7]</div>
+          <p>TechNext. (2023, July 27). <em>Anonymous Sudan targets Kenya's online services in multiple DDoS attacks.</em> Retrieved from <a href="https://technext24.com/2023/07/27/anonymous-sudan-kenya-ddos-attack/">technext24.com</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[8]</div>
+          <p>TechWeez. (2023, July 27). <em>Anonymous Sudan continues DDoS attacks on Kenyan infrastructure.</em> Retrieved from <a href="https://techweez.com/2023/07/27/anonymous-sudan-ddos-attacks-kenyan-infrastructure/">techweez.com</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[9]</div>
+          <p>Tuko.co.ke. (2023, July 28). <em>DDoS attack Kenya: All about cyber attack that paralysed eCitizen, Kenya Power among other services.</em> Retrieved from <a href="https://www.tuko.co.ke/business-economy/technology/515685-ddos-attack-kenya-cyber-attack-paralysed-e-citizen-kenya-power-services/">tuko.co.ke</a></p>
+        </div>
+        <div class="ref-item">
+          <div class="ref-num">[10]</div>
+          <p>Stewart, J. M., Chapple, M., & Gibson, D. (2021). <em>Certified Information Systems Security Professional (CISSP) study guide</em> (9th ed.). Sybex/Wiley.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     SLIDE 18 — CLOSING
+════════════════════════════════════════════ -->
+<section class="slide" id="s18">
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="inner">
+    <div class="flag-bar reveal">
+      <div class="f1"></div><div class="f2"></div><div class="f3"></div>
+      <div class="f4"></div><div class="f5"></div>
+    </div>
+    <h2 class="reveal">When the <span>Portal</span><br>Goes Dark,<br>a Nation <em>Stops</em></h2>
+    <p class="takeaway reveal">
+      The 2023 eCitizen attack was not just a technical incident — it was a demonstration that <strong>digital infrastructure is now geopolitical infrastructure.</strong> Kenya's ambition to build Africa's most advanced e-government platform became its greatest vulnerability the moment it outpaced its security posture. The lesson for every nation racing toward digital transformation is clear: <strong>availability is a right, and it must be defended like one.</strong>
+    </p>
+    <div class="concept-summary reveal">
+      <span class="cs-pill">✓ AIC Triad — Availability First</span>
+      <span class="cs-pill">✓ PDoS vs Temporary DDoS</span>
+      <span class="cs-pill">✓ SLA: Peak Load & Max Downtime</span>
+      <span class="cs-pill">✓ ALE Quantitative Risk Analysis</span>
+      <span class="cs-pill">✓ The Controls Gap</span>
+    </div>
+    <p class="cite" style="margin-top:clamp(0.8rem,2vh,1.5rem);">Questions? — ISM 6331 · Information Systems Security</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+class SlidePresentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.total = this.slides.length;
+    this.current = 0;
+    this.isScrolling = false;
+    this.touchStartY = 0;
+
+    this.setupIntersectionObserver();
+    this.setupKeyboardNav();
+    this.setupTouchNav();
+    this.setupWheelNav();
+    this.setupProgressBar();
+    this.setupNavDots();
+  }
+
+  setupIntersectionObserver() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          this.current = this.slides.indexOf(entry.target);
+          this.updateProgressBar();
+          this.updateNavDots();
+        }
+      });
+    }, { threshold: 0.5 });
+    this.slides.forEach(s => observer.observe(s));
+  }
+
+  goTo(index) {
+    if (index < 0 || index >= this.total) return;
+    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  setupKeyboardNav() {
+    document.addEventListener('keydown', e => {
+      if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) {
+        e.preventDefault(); this.goTo(this.current + 1);
+      }
+      if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+        e.preventDefault(); this.goTo(this.current - 1);
+      }
+      if (e.key === 'Home') this.goTo(0);
+      if (e.key === 'End') this.goTo(this.total - 1);
+    });
+  }
+
+  setupWheelNav() {
+    let wheelTimeout;
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (this.isScrolling) return;
+      this.isScrolling = true;
+      if (e.deltaY > 0) this.goTo(this.current + 1);
+      else this.goTo(this.current - 1);
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => { this.isScrolling = false; }, 900);
+    }, { passive: false });
+  }
+
+  setupTouchNav() {
+    document.addEventListener('touchstart', e => {
+      this.touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const dy = this.touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 50) {
+        if (dy > 0) this.goTo(this.current + 1);
+        else this.goTo(this.current - 1);
+      }
+    }, { passive: true });
+  }
+
+  setupProgressBar() {
+    this.progressBar = document.getElementById('progressBar');
+    this.updateProgressBar();
+  }
+
+  updateProgressBar() {
+    const pct = this.total > 1 ? (this.current / (this.total - 1)) * 100 : 0;
+    if (this.progressBar) this.progressBar.style.width = pct + '%';
+  }
+
+  setupNavDots() {
+    const nav = document.getElementById('navDots');
+    if (!nav) return;
+    this.slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'nav-dot';
+      dot.setAttribute('aria-label', `Slide ${i + 1}`);
+      dot.addEventListener('click', () => this.goTo(i));
+      nav.appendChild(dot);
+    });
+    this.updateNavDots();
+  }
+
+  updateNavDots() {
+    const dots = document.querySelectorAll('.nav-dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === this.current));
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+</script>
+</body>
+</html>
